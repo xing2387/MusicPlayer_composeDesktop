@@ -1,4 +1,4 @@
-import androidx.compose.desktop.Window
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,22 +13,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.res.vectorXmlResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import org.jetbrains.skiko.currentSystemTheme
 
-fun main() = Window {
+fun main() = application {
     var text by remember { mutableStateOf("Hello, World!") }
 
-    MaterialTheme {
-        Column {
-            var searchText by rememberSaveable { mutableStateOf("") }
-            TitleBar(searchText, onSearchTextChange = { searchText = it })
-            Row(modifier = Modifier.background(Color.White).height(50.dp)) {
+    Window(
+        onCloseRequest = ::exitApplication,
+        undecorated = true,
+        title = "音乐播放器",
+        resizable = true,
+        state = rememberWindowState(
+            width = 800.dp, height = 600.dp,
+            position = WindowPosition(Alignment.Center)
+        )
+    ) {
 
+        MaterialTheme(
+            shapes = MaterialTheme.shapes.copy(
+                RoundedCornerShape(16.dp),
+                RoundedCornerShape(16.dp),
+                RoundedCornerShape(16.dp)
+            )
+        ) {
+            Column(modifier = Modifier.background(Color.Red, RoundedCornerShape(16.dp))) {
+                var searchText by rememberSaveable { mutableStateOf("") }
+                TitleBar(searchText, onSearchTextChange = { searchText = it })
+                Row(modifier = Modifier.background(Color.White).height(50.dp)) {
+                }
             }
         }
     }
@@ -39,7 +59,7 @@ fun main() = Window {
 fun TitleBar(searchText: String, onSearchTextChange: (String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.background(Color(0XFFC72E2E))
+        modifier = Modifier.background(Color(0xFFD8534B), RoundedCornerShape(16.dp))
             .fillMaxWidth()
             .height(50.dp)
             .padding(15.dp, 0.dp)
@@ -68,4 +88,10 @@ fun TitleBar(searchText: String, onSearchTextChange: (String) -> Unit) {
             Modifier.size(20.dp, 20.dp).offset((-20).dp - 5.dp, 0.dp)
         )
     }
+}
+
+@Preview
+@Composable
+fun preview() {
+    Text(text = "Hello Compose!")
 }

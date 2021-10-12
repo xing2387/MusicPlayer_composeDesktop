@@ -3,21 +3,24 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.30"
-    id("org.jetbrains.compose") version "0.3.1"
+    //This version (1.1.0-alpha01) of the Compose Compiler requires Kotlin version 1.5.21 but you appear to be using Kotlin version 1.5.31 which is not known to be compatible.
+    //or suppressKotlinVersionCompatibilityCheck
+    kotlin("jvm") version "1.5.21"
+    id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
 
 group = "me.xing"
 version = "1.0"
 
 repositories {
-    jcenter()
     mavenCentral()
+    google()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation("androidx.annotation:annotation:1.2.0")
 }
 
 tasks.withType<KotlinCompile>() {
