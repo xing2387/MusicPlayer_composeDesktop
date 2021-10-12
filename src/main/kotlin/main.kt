@@ -1,9 +1,12 @@
+import androidx.compose.desktop.AppWindow
+import androidx.compose.desktop.LocalAppWindow
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -13,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.vectorXmlResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -23,9 +27,18 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import org.jetbrains.skiko.currentSystemTheme
 
+
 fun main() = application {
     var text by remember { mutableStateOf("Hello, World!") }
 
+    /*
+    * 圆角：
+    * https://github.com/JetBrains/compose-jb/issues/1179
+    * We don't have compose api for this. But it could be done using native API's passing them window.windowHandle
+    * 透明背景：
+    * https://github.com/JetBrains/compose-jb/issues/418
+    * Currently, not all supported operating systems support window transparency, so for now we decided to disable transparency in order to achieve the same behavior on all operating systems.
+    * */
     Window(
         onCloseRequest = ::exitApplication,
         undecorated = true,
