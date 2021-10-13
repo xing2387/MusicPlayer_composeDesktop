@@ -21,10 +21,11 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("androidx.annotation:annotation:1.2.0")
+    implementation("com.github.skydoves:landscapist-glide:1.0.7")
     implementation(kotlin("reflect"))
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "14"
 }
 

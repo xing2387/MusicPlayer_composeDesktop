@@ -20,7 +20,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
-
+import com.bumptech.glide.annotation.GlideModule
+import java.lang.RuntimeException
 
 fun main() = application {
     var text by remember { mutableStateOf("Hello, World!") }
@@ -57,12 +58,18 @@ fun main() = application {
                 }
 
                 Row(modifier = Modifier.background(Color.White).height(50.dp)) {
+                    Column { }
+                    Column { }
                 }
             }
         }
     }
 }
 
+@Composable
+fun UserInfo() {
+
+}
 
 @Composable
 fun ApplicationScope.TitleBar(
@@ -80,13 +87,13 @@ fun ApplicationScope.TitleBar(
 
         Image(
             painter = painterResource("images/ic_close_24.xml"),
-            contentDescription = "search icon",
+            contentDescription = "close application",
             Modifier.size(20.dp, 20.dp)
                 .clickable { exitApplication() }
         )
         Image(
             painter = painterResource("images/ic_maximum_24.xml"),
-            contentDescription = "search icon",
+            contentDescription = "maximum window",
             Modifier.size(20.dp, 20.dp).offset(4.dp, 0.dp)
                 .clickable {
                     windowState.placement =
@@ -96,7 +103,7 @@ fun ApplicationScope.TitleBar(
         )
         Image(
             painter = painterResource("images/ic_minimize_24.xml"),
-            contentDescription = "search icon",
+            contentDescription = "minimize window",
             Modifier.size(20.dp, 20.dp).offset(6.dp, (-6).dp)
                 .clickable { windowState.isMinimized = true }
         )
