@@ -21,6 +21,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("androidx.annotation:annotation:1.2.0")
+    implementation(kotlin("reflect"))
 }
 
 tasks.withType<KotlinCompile>() {
