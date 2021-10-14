@@ -21,8 +21,11 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("com.github.skydoves:landscapist-glide:1.0.7")
+    implementation("com.squareup.okhttp3:okhttp:4.9.2")
+    implementation("org.bouncycastle:bcpkix-jdk14:1.48")
+    implementation("com.google.code.gson:gson:2.8.7")
     implementation(kotlin("reflect"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<KotlinCompile> {
@@ -38,4 +41,12 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
 }
