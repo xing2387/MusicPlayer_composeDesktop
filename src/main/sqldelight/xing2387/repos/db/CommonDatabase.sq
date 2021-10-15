@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS UserInfo (
+    id TEXT PRIMARY KEY,
+    userName TEXT NOT NULL,
+    avatar TEXT,
+    token TEXT,
+    ps BLOB
+);
+
+selectAll:
+SELECT * FROM UserInfo;
+
+getUserById:
+SELECT * FROM UserInfo WHERE id = ?;
+
+insert:
+INSERT OR REPLACE INTO UserInfo (id, userName, avatar, token, ps) VALUES (?,?,?,?,?);

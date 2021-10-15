@@ -1,3 +1,4 @@
+import androidx.compose.desktop.DesktopTheme
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,19 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
-import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import xing2387.repos.bean.MusicListInfo
-import xing2387.repos.net.migu.HTTPSClient
-import xing2387.repos.net.migu.Main
-import xing2387.repos.net.migu.req.CallAuthRequest
+import xing2387.repos.db.CommonDB
 import xing2387.ui.LoginDialog
 import xing2387.ui.RemoteImage
-import java.io.File
-import javax.net.ssl.SSLSocketFactory
 
 fun main() = application {
     var text by remember { mutableStateOf("Hello, World!") }
@@ -51,6 +49,9 @@ fun main() = application {
 
     var isShowLogin by remember { mutableStateOf(true) }
 
+    var loginedId: String? by remember { mutableStateOf(null) }
+
+
     Window(
         onCloseRequest = ::exitApplication,
         undecorated = true,
@@ -59,38 +60,76 @@ fun main() = application {
         state = windowState
     ) {
 
+        val windowScope = rememberCoroutineScope()
+
         MaterialTheme {
-            Column(modifier = Modifier.background(Color.White)) {
-                var searchText by rememberSaveable { mutableStateOf("") }
-                WindowDraggableArea {
-                    TitleBar(
-                        searchText,
-                        onSearchTextChange = { searchText = it },
-                        windowState = windowState
-                    )
-                }
-
-                Row(modifier = Modifier.background(Color.White).fillMaxHeight()) {
-                    Column(
-                        modifier = Modifier.background(color = Color(0xFFEDEDED)).fillMaxHeight()
-                            .width(200.dp)
-                    ) {
-                        UserInfo(null, null) { isShowLogin = true }
+            DesktopTheme {
+                Column(modifier = Modifier.background(Color.White)) {
+                    var searchText by rememberSaveable { mutableStateOf("") }
+                    WindowDraggableArea {
+                        TitleBar(
+                            searchText,
+                            onSearchTextChange = { searchText = it },
+                            windowState = windowState
+                        )
                     }
-                    Column(modifier = Modifier.fillMaxSize()) { }
+
+                    Row(modifier = Modifier.background(Color.White).fillMaxHeight()) {
+                        Column(
+                            modifier = Modifier.background(color = Color(0xFFEDEDED))
+                                .fillMaxHeight()
+                                .width(200.dp)
+                        ) {
+                            var userName: String? by remember { mutableStateOf(null) }
+                            var avatar: String? by remember { mutableStateOf(null) }
+                            UserInfo(avatar, userName) { isShowLogin = true }
+
+                            LaunchedEffect(loginedId) {
+                                withContext(Dispatchers.IO) {
+                                    Thread.sleep(5000)
+                                    System.out.println("query ${Thread.currentThread().name}")
+                                    if (loginedId == null) {
+                                        userName = null
+                                        avatar = null
+                                        System.out.println("restore user null")
+                                    } else {
+                                        val user = CommonDB.getUserById("111").executeAsOneOrNull()
+                                        userName = user?.userName
+                                        avatar = user?.avatarUrl
+                                        System.out.println("restore user ${user}")
+                                    }
+                                }
+                            }
+                        }
+                        Column(modifier = Modifier.fillMaxSize()) { }
+                    }
+                }
+
+
+                System.out.println("main ${Thread.currentThread().name}")
+                if (isShowLogin) {
+                    LoginDialog({ isShowLogin = false }, { userName, passwd, isRememberPasswd ->
+                        if (isRememberPasswd) {
+                            windowScope.launch(Dispatchers.IO) {
+                                Thread.sleep(5000)
+                                System.out.println("insert ${Thread.currentThread().name}")
+                                CommonDB.insert(
+                                    "111",
+                                    userName,
+                                    avatar = "https://www.baidu.com/img/flexible/logo/pc/result.png",
+                                    ps = passwd
+                                )
+                                loginedId = "2222"
+                            }
+                        }
+//                        HTTPSClient.call(
+//                            Main.sslSocketFactory,
+//                            CallAuthRequest(userName, null, passwd)
+//                        )
+//                    System.out.println(Gson().toJson(File(".").listFiles()))
+                    })
                 }
             }
-
-            if (isShowLogin) {
-                LoginDialog({ isShowLogin = false }, { userName, passwd ->
-                    HTTPSClient.call(
-                        Main.sslSocketFactory,
-                        CallAuthRequest(userName, null, passwd)
-                    )
-//                    System.out.println(Gson().toJson(File(".").listFiles()))
-                })
-            }
-
         }
     }
 }
@@ -127,9 +166,7 @@ fun UserInfo(url: String?, nick: String?, onClick: () -> Unit) {
             text = nick ?: "未登录",
             color = Color(0xFF333333),
             fontSize = 15.sp,
-            modifier = Modifier.align(
-                Alignment.CenterVertically
-            )
+            modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth()
         )
     }
 }

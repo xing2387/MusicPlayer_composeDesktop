@@ -2,36 +2,64 @@ import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+
+buildscript {
+    dependencies {
+        classpath("com.squareup.sqldelight:gradle-plugin:1.4.3")
+    }
+}
+
 plugins {
-    //This version (1.1.0-alpha01) of the Compose Compiler requires Kotlin version 1.5.21 but you appear to be using Kotlin version 1.5.31 which is not known to be compatible.
-    //or suppressKotlinVersionCompatibilityCheck
     kotlin("jvm") version "1.5.21"
-    id("org.jetbrains.compose") version "1.0.0-alpha3"
+    id("org.jetbrains.compose") version "1.0.0-alpha2"
+    id("com.squareup.sqldelight") version "1.4.3"
 }
 
 group = "me.xing"
 version = "1.0"
 
+kotlin {
+    sourceSets {
+        main {
+            dependencies {
+                implementation("com.squareup.sqldelight:sqlite-driver:1.4.3")
+            }
+        }
+    }
+}
+
+sqldelight {
+    database("CommonDatabase") {
+        packageName = "xing2387.repos.db"
+    }
+}
+
 repositories {
     mavenCentral()
     google()
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 dependencies {
     implementation(compose.desktop.currentOs)
-    implementation("androidx.annotation:annotation:1.2.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.2")
-    implementation("org.bouncycastle:bcpkix-jdk14:1.48")
-    implementation("com.google.code.gson:gson:2.8.7")
+    implementation("org.bouncycastle:bcpkix-jdk14:1.69")
+    implementation("com.google.code.gson:gson:2.8.8")
+
     implementation(kotlin("reflect"))
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "14"
+    kotlinOptions {
+        jvmTarget = "14"
+//        freeCompilerArgs = ArrayList<String>().also {
+//            it.addAll(freeCompilerArgs)
+//            it.add("-Xallow-jvm-ir-dependencies")
+//            it.add("-P")
+//            it.add("plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true")
+//        }
+    }
 }
-
 compose.desktop {
     application {
         mainClass = "MainKt"
@@ -41,12 +69,4 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
-}
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
 }

@@ -16,38 +16,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
-//fun Dialog(
-//    onCloseRequest: () -> Unit,
-//    state: DialogState = rememberDialogState(),
-//    visible: Boolean = true,
-//    title: String = "Untitled",
-//    icon: Painter? = null,
-//    undecorated: Boolean = false,
-//    resizable: Boolean = true,
-//    enabled: Boolean = true,
-//    focusable: Boolean = true,
-//    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
-//    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
-//    content: @Composable DialogWindowScope.() -> Unit
-//) {
 @Composable
-fun LoginDialog(onCloseClicked: () -> Unit, onLoginClicked: (String, String) -> Unit) {
+fun LoginDialog(onCloseClicked: () -> Unit, onLoginClicked: (String, String, Boolean) -> Unit) {
     Surface(
         modifier = Modifier.size(300.dp, 400.dp).offset(250.dp, 100.dp),
         shape = RoundedCornerShape(10.dp),
         elevation = 10.dp
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(36.dp)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painterResource("images/ic_close_24.xml"),
                 contentDescription = "close",
-                modifier = Modifier.size(20.dp).clickable { onCloseClicked() }
-                    .offset((-10).dp, (-10).dp),
+                modifier = Modifier.padding(16.dp).size(20.dp).clickable { onCloseClicked() },
                 colorFilter = ColorFilter.tint(Color(0xFF666666), BlendMode.SrcIn)
             )
 
@@ -57,76 +45,74 @@ fun LoginDialog(onCloseClicked: () -> Unit, onLoginClicked: (String, String) -> 
             Text(
                 "登录",
                 style = TextStyle(Color(0xFF333333), 26.sp),
-                modifier = Modifier.offset(0.dp, 24.dp)
+                modifier = Modifier.padding(start = 32.dp, top = 36.dp)
             )
 
             var userName by remember { mutableStateOf(hintUserName) }
             var password by remember { mutableStateOf(hintPasswd) }
 
-            Box(
-                modifier = Modifier.fillMaxWidth().height(48.dp).offset(0.dp, 56.dp)
+            BasicTextField(
+                value = userName,
+                textStyle = TextStyle.Default.copy(
+                    color = Color.Black,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start
+                ),
+                modifier = Modifier.padding(start = 32.dp, top = 24.dp, end = 32.dp).height(48.dp).fillMaxWidth()
                     .border(1.dp, Color(0xFFAAAAAA), RoundedCornerShape(6.dp))
-            ) {
-                BasicTextField(
-                    value = userName,
-                    textStyle = TextStyle.Default.copy(
-                        color = Color.Black,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier.padding(16.dp, 0.dp).height(26.dp).fillMaxWidth()
-                        .align(Alignment.CenterStart)
-                        .onFocusChanged { state ->
-                            if (state.hasFocus && userName == hintUserName) {
-                                userName = ""
-                            } else if (userName == "") {
-                                userName = hintUserName;
-                            }
-                        },
-                    singleLine = true,
-                    onValueChange = { userName = it },
+                    .padding(12.dp)
+                    .onFocusChanged { state ->
+                        if (state.hasFocus && userName == hintUserName) {
+                            userName = ""
+                        } else if (userName == "") {
+                            userName = hintUserName;
+                        }
+                    },
+                singleLine = true,
+                onValueChange = { userName = it },
 //                label = { Text("用户名/手机号") },
-                )
-            }
-            Box(
-                modifier = Modifier.fillMaxWidth().height(48.dp).offset(0.dp, 66.dp)
+            )
+
+            BasicTextField(
+                keyboardActions = KeyboardActions { },
+                value = password,
+                textStyle = TextStyle.Default.copy(
+                    color = Color.Black,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    baselineShift = BaselineShift.Subscript
+                ),
+                modifier = Modifier.padding(start = 32.dp, top = 10.dp, end = 32.dp).height(48.dp).fillMaxWidth()
                     .border(1.dp, Color(0xFFAAAAAA), RoundedCornerShape(6.dp))
-            ) {
-                BasicTextField(
-                    keyboardActions = KeyboardActions { },
-                    value = password,
-                    textStyle = TextStyle.Default.copy(
-                        color = Color.Black,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier.padding(16.dp, 0.dp).height(26.dp).fillMaxWidth()
-                        .align(Alignment.CenterStart)
-                        .onFocusChanged { state ->
-                            if (state.hasFocus && password == hintPasswd) {
-                                password = ""
-                            } else if (password == "") {
-                                password = hintPasswd;
-                            }
-                        },
-                    singleLine = true,
-                    onValueChange = { password = it },
-//                label = { Text("密码") },
-                )
+                    .padding(12.dp)
+                    .onFocusChanged { state ->
+                        if (state.hasFocus && password == hintPasswd) {
+                            password = ""
+                        } else if (password == "") {
+                            password = hintPasswd;
+                        }
+                    },
+                singleLine = true,
+                onValueChange = { password = it },
+            )
+
+            var isRememberPasswd by remember { mutableStateOf(false) }
+            Row(Modifier.padding(start = 32.dp, top = 10.dp)) {
+                Checkbox(checked = isRememberPasswd, onCheckedChange = { isRememberPasswd = it })
+                Text(text = "记住密码")
             }
 
             Surface(
                 shape = RoundedCornerShape(10.dp), color = Color(0xFFD33A31),
-                modifier = Modifier.fillMaxWidth().offset(0.dp, 110.dp)
+                modifier = Modifier.padding(32.dp, 32.dp).clickable {
+                    onLoginClicked(userName, password, isRememberPasswd)
+                }.fillMaxWidth()
             ) {
                 Text(
                     "登录",
                     style = TextStyle(Color.White, 18.sp),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(8.dp)
-                        .clickable {
-                            onLoginClicked(userName, password)
-                        }
                 )
             }
         }
